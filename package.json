@@ -1,0 +1,41 @@
+{
+  "name": "pretty-columns",
+  "version": "1.0.0",
+  "description": "Pretty command line columns output",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shinate/pretty-columns.git"
+  },
+  "keywords": [
+    "cli",
+    "column",
+    "columnate",
+    "columns",
+    "auto",
+    "table",
+    "log",
+    "inject",
+    "pretty",
+    "row",
+    "rows",
+    "unicode",
+    "unix",
+    "ansi"
+  ],
+  "author": {
+    "name": "Shinate",
+    "email": "shine.wangrs@gmail.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shinate/pretty-columns/issues"
+  },
+  "homepage": "https://github.com/shinate/pretty-columns#readme",
+  "dependencies": {
+    "util": "^0.11.1"
+  }
+}
