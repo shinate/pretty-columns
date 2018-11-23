@@ -4,7 +4,7 @@
   "description": "Pretty command line columns output",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/script.js"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,9 @@
     "rows",
     "unicode",
     "unix",
-    "ansi"
+    "ansi",
+    "colors",
+    "chalk"
   ],
   "author": {
     "name": "Shinate",
@@ -37,5 +39,9 @@
   "homepage": "https://github.com/shinate/pretty-columns#readme",
   "dependencies": {
     "util": "^0.11.1"
+  },
+  "devDependencies": {
+    "chalk": "^2.4.1",
+    "colors": "^1.3.2"
   }
 }

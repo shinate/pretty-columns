@@ -4,16 +4,24 @@ function strip(str) {
     return ('' + str).replace(/\x1B\[\d+m/g, '');
 }
 
-function tabledOutput(source, config) {
+function split(source, symbol) {
+    return util.isString(source) ? source.split(symbol) : source;
+}
+
+function PC(source, config) {
     if (source == null) {
         return;
     }
-    this.STAT = {
-        config: {
-            placeholder: ' ',
-            columnSeparation: ' ',
-            rowSeparation: "\n"
-        },
+    this.config = {
+        prefix: '',
+        suffix: '',
+        placeholder: ' ',
+        columnSeparation: ' ',
+        rowSeparation: "\n",
+        rowSplitSymbol: "\n",
+        columnSplitSymbol: "\t"
+    };
+    this._STATS = {
         originalSource: source,
         source: null,
         formated: null,
@@ -23,64 +31,65 @@ function tabledOutput(source, config) {
         width: [],
         align: []
     };
-    Object.assign(this.STAT.config, config || {});
+    this.params(config);
     this.parse();
     this.sizeAgent();
     this.fixAlign();
     this.format();
 }
 
-var tp = tabledOutput.prototype;
+var tp = PC.prototype;
+
+tp.params = function params(config) {
+    Object.assign(this.config, config);
+};
 
 tp.parse = function parse() {
-    this.STAT.source = this.parseRow(this.STAT.originalSource).map(this.parseColumn);
-    this.STAT.rows = this.STAT.source.length;
+    this._STATS.source = split(this._STATS.originalSource, this.config.rowSplitSymbol).map(function (row) {
+        return split(row, this.config.columnSplitSymbol);
+    }.bind(this));
+    this._STATS.rows = this._STATS.source.length;
 };
-
-tp.parseRow = function parseRow(source) {
-    return util.isString(source) ? source.split("\n") : source;
-};
-
-tp.parseColumn = function parseColumn(source) {
-    return util.isString(source) ? source.split("\t") : source;
-}
 
 tp.sizeAgent = function sizeAgent() {
-    this.STAT.source.forEach(function (row, rowNum) {
-        if (this.STAT.columns < row.length) {
-            this.STAT.columns = row.length;
+    this._STATS.source.forEach(function (row, rowNum) {
+        if (this._STATS.columns < row.length) {
+            this._STATS.columns = row.length;
         }
-        this.STAT.width[rowNum] = [];
+        this._STATS.width[rowNum] = [];
         row.forEach(function (column, columnNum) {
-            var length = this.STAT.width[rowNum][columnNum] = strip(column).length;
-            if (this.STAT.maxWidth[columnNum] == null || this.STAT.maxWidth[columnNum] < length) {
-                this.STAT.maxWidth[columnNum] = length;
+            var length = this._STATS.width[rowNum][columnNum] = strip(column).length;
+            if (this._STATS.maxWidth[columnNum] == null || this._STATS.maxWidth[columnNum] < length) {
+                this._STATS.maxWidth[columnNum] = length;
             }
         }.bind(this))
     }.bind(this));
-}
+};
 
 tp.fixAlign = function fixAlign() {
 
-    var align = (new Array(this.STAT.columns)).fill(0);
+    var align = (new Array(this._STATS.columns)).fill(0);
 
     var optAlign = [];
 
-    if (this.STAT.config.hasOwnProperty('align')) {
-        if (util.isString(this.STAT.config.align)) {
-            optAlign = this.STAT.config.align.split('');
-        } else if (util.isArray(this.STAT.config.align)) {
-            optAlign = this.STAT.config.align;
+    if (this.config.hasOwnProperty('align')) {
+        if (util.isString(this.config.align)) {
+            optAlign = this.config.align.split('');
+        } else if (util.isArray(this.config.align)) {
+            optAlign = this.config.align;
         }
 
-        Object.assign(align, optAlign.slice(0, this.STAT.columns).map(function (item) {
+        Object.assign(align, optAlign.slice(0, this._STATS.columns).map(function (item) {
             switch (item) {
+                case 1:
                 case 'c':
                 case 'center':
                     return 1;
+                case 2:
                 case 'r':
-                case 'rignt':
+                case 'right':
                     return 2;
+                case 0:
                 case 'l':
                 case 'left':
                 default:
@@ -89,52 +98,54 @@ tp.fixAlign = function fixAlign() {
         }));
     }
 
-    this.STAT.align = align;
-}
+    this._STATS.align = align;
+};
 
 tp.format = function format() {
-    var placeholder = this.STAT.config.placeholder;
-    var columnSeparation = this.STAT.config.columnSeparation;
-    var rowSeparation = this.STAT.config.rowSeparation;
-    this.STAT.formated = this.STAT.source.map(function (row, rowNum) {
-        return row.map(function (column, columnNum) {
-            var fillZero = this.STAT.maxWidth[columnNum] - this.STAT.width[rowNum][columnNum];
-            if (fillZero > 0) {
-                var fl, fr;
-                switch (this.STAT.align[columnNum]) {
-                    case 0:
-                        fl = 0;
-                        fr = fillZero;
-                        return column + (new Array(fr + 1)).join(placeholder);
-                    case 1:
-                        fl = parseInt(fillZero / 2);
-                        fr = fillZero - fl;
-                        return (new Array(fl + 1)).join(placeholder) + column + (new Array(fr + 1)).join(placeholder);
-                    case 2:
-                        fl = fillZero;
-                        fr = 0;
-                        return (new Array(fl + 1)).join(placeholder) + column;
+    var placeholder = this.config.placeholder;
+    var columnSeparation = this.config.columnSeparation;
+    var rowSeparation = this.config.rowSeparation;
+    this._STATS.formated = this.config.prefix +
+        this._STATS.source.map(function (row, rowNum) {
+            return row.map(function (column, columnNum) {
+                var fillZero = this._STATS.maxWidth[columnNum] - this._STATS.width[rowNum][columnNum];
+                if (fillZero > 0) {
+                    var fl, fr;
+                    switch (this._STATS.align[columnNum]) {
+                        case 0:
+                            fl = 0;
+                            fr = fillZero;
+                            return column + (new Array(fr + 1)).join(placeholder);
+                        case 1:
+                            fl = parseInt(fillZero / 2);
+                            fr = fillZero - fl;
+                            return (new Array(fl + 1)).join(placeholder) + column + (new Array(fr + 1)).join(placeholder);
+                        case 2:
+                            fl = fillZero;
+                            fr = 0;
+                            return (new Array(fl + 1)).join(placeholder) + column;
+                    }
                 }
-            }
-            return column;
-        }.bind(this)).join(columnSeparation)
-    }.bind(this)).join(rowSeparation);
+                return column;
+            }.bind(this)).join(columnSeparation)
+        }.bind(this)).join(rowSeparation) +
+        this.config.suffix;
 };
 
 tp.output = function output() {
-    console.log(this.STAT.formated);
+    console.log(this._STATS.formated);
 };
 
 function WRAP(source, config) {
-    return new tabledOutput(source, config || {});
+    return new PC(source, config || {});
 }
 
 WRAP.output = function (source, config) {
-    (new tabledOutput(source, config || {})).output();
+    (new PC(source, config || {})).output();
 };
 
 WRAP.injectConsole = function () {
-    console.table = WRAP.output;
+    console.columns = WRAP.output;
 };
 
 module.exports = WRAP;
