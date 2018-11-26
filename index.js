@@ -1,5 +1,17 @@
-function strip(str) {
-    return ('' + str).replace(/\x1B\[\d+m/g, '');
+"use strict";
+
+var emojiRegex = require('emoji-regex')();
+
+function stripANSI(str) {
+    return str.replace(/\x1B\[\d+m/g, '');
+}
+
+function stripWRAP(str) {
+    return str.replace(/[\n\r]+/g, ' ');
+}
+
+function stripEmoji(str) {
+    return str.replace(emojiRegex, '');
 }
 
 function split(source, symbol) {
@@ -14,10 +26,26 @@ function isArray(t) {
     return Array.isArray(t);
 }
 
+/**
+ * String real width
+ * @param str
+ * @returns {number}
+ *
+ * Emoji: 2
+ * Double-byte character: 2
+ * Others: 1
+ */
+function realWidth(str) {
+    if (str == null)
+        return 0;
+    str = stripANSI(str);
+    return str.length + (stripEmoji(str).match(/[^\x00-\xff]/g) || []).length;
+}
+
 function PC(source, config) {
-    if (source == null) {
+    if (source == null)
         return;
-    }
+
     this.config = {
         prefix: '',
         suffix: '',
@@ -27,6 +55,7 @@ function PC(source, config) {
         rowSplitSymbol: "\n",
         columnSplitSymbol: "\t"
     };
+
     this._STATS = {
         originalSource: source,
         source: null,
@@ -37,9 +66,9 @@ function PC(source, config) {
         width: [],
         align: []
     };
+
     this.params(config);
     this.parse();
-    this.sizeAgent();
     this.fixAlign();
     this.format();
 }
@@ -51,40 +80,29 @@ tp.params = function params(config) {
 };
 
 tp.parse = function parse() {
-    this._STATS.source = split(this._STATS.originalSource, this.config.rowSplitSymbol).map(function (row) {
-        return split(row, this.config.columnSplitSymbol);
+    this._STATS.source = split(this._STATS.originalSource, this.config.rowSplitSymbol).map(function (row, rowNum) {
+        if (this._STATS.columns < row.length)
+            this._STATS.columns = row.length;
+        this._STATS.width[rowNum] = [];
+        return split(row, this.config.columnSplitSymbol).map(function (column, columnNum) {
+            var length = this._STATS.width[rowNum][columnNum] = realWidth(column);
+            if (!this._STATS.maxWidth.hasOwnProperty(columnNum) || this._STATS.maxWidth[columnNum] < length)
+                this._STATS.maxWidth[columnNum] = length;
+            return stripWRAP(column);
+        }.bind(this));
     }.bind(this));
     this._STATS.rows = this._STATS.source.length;
 };
 
-tp.sizeAgent = function sizeAgent() {
-    this._STATS.source.forEach(function (row, rowNum) {
-        if (this._STATS.columns < row.length) {
-            this._STATS.columns = row.length;
-        }
-        this._STATS.width[rowNum] = [];
-        row.forEach(function (column, columnNum) {
-            var length = this._STATS.width[rowNum][columnNum] = strip(column).length;
-            if (this._STATS.maxWidth[columnNum] == null || this._STATS.maxWidth[columnNum] < length) {
-                this._STATS.maxWidth[columnNum] = length;
-            }
-        }.bind(this))
-    }.bind(this));
-};
-
 tp.fixAlign = function fixAlign() {
-
     var align = (new Array(this._STATS.columns)).fill(0);
-
     var optAlign = [];
-
     if (this.config.hasOwnProperty('align')) {
         if (isString(this.config.align)) {
             optAlign = this.config.align.split('');
         } else if (isArray(this.config.align)) {
             optAlign = this.config.align;
         }
-
         Object.assign(align, optAlign.slice(0, this._STATS.columns).map(function (item) {
             switch (item) {
                 case 1:
@@ -103,7 +121,6 @@ tp.fixAlign = function fixAlign() {
             }
         }));
     }
-
     this._STATS.align = align;
 };
 

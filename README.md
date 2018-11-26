@@ -1,6 +1,16 @@
 # pretty-columns
 
-Support colors, chalk and other ansi.
+- Support [colors](https://www.npmjs.com/package/colors), [chalk](https://www.npmjs.com/package/chalk) and other ansi.
+- Compatible with double-byte characters, emoji emoticons.
+- Best display when using monospaced fonts.
+- Content can only be displayed in a single line, automatically remove "\n" or "\r" from content.
+- Multi-line display may be possible. (lazy.. stretched)
+
+## Via [npm](https://www.npmjs.com/)
+
+```javascript
+npm install pretty-columns
+```
 
 ## Usage
 
@@ -31,8 +41,6 @@ console.columns(input);
 
 ## About Input
 
-
-
 ### String
 
 ```javascript
@@ -55,13 +63,14 @@ var input = ['A,B','1,2'];
 
 |property|description|default|
 |---|---|---|
+|rowSplitSymbol|Row split symbol(when string input given)|"\n" (can be regexp)|
+|columnSplitSymbol|Column split symbol(when string input given)|"\t" (can be regexp)|
+|align|Alignment:<br>\['right', 'center', ...\]<br>OR<br>'rc...'|Filling "left" when insufficient.<br>Ignored when redundant.|
+|rowSeparation|Rows connector|"\n"|
+|columnSeparation|Columns connector|" "|
 |prefix|Prefix at output|""|
 |suffix|Suffix at output|""|
 |placeholder|Fill white space|" "|
-|columnSeparation|Columns connector|" "|
-|rowSeparation|Rows connector|"\n"|
-|rowSplitSymbol|Row split symbol(when string input given)|"\n"(can be regexp)|
-|columnSplitSymbol|Column split symbol(when string input given)|"\t"(can be regexp)|
 
 ## Example
 
@@ -82,11 +91,11 @@ var INPUT = [
     ],
     [
         chalk.yellow("path"),
-        "search"
+        "😘search🐰"
     ],
     [
         "query",
-        "q=" + colors.cyan("npm")
+        colors.cyan("q=") + "npm 中\n文呢？"
     ],
     [
         "scheme",
@@ -107,9 +116,3 @@ output(INPUT, {
 **Print**
 
 ![](https://raw.githubusercontent.com/shinate/pretty-columns/master/thumbnails/description.png)
-
-## *PS
-
-- Best display when using monospaced fonts.
-- Content can only be displayed in a single line.
-- Multi-line display may be possible. (lazy.. stretched)

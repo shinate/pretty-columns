@@ -17,11 +17,11 @@ var source_array = [
     ],
     [
         chalk.yellow("path"),
-        "search"
+        "😘search🐰"
     ],
     [
         "query",
-        "q=" + colors.cyan("npm")
+        colors.cyan("q=") + "npm 中\n文呢？"
     ],
     [
         "scheme",
