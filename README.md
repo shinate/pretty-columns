@@ -1,5 +1,7 @@
 # pretty-columns
 
+[![Build Status via Travis CI](https://travis-ci.org/shinate/pretty-columns.svg?branch=master)](https://travis-ci.org/shinate/pretty-columns)
+
 - Support [colors](https://www.npmjs.com/package/colors), [chalk](https://www.npmjs.com/package/chalk) and other ansi.
 - Compatible with double-byte characters, emoji emoticons.
 - Best display when using monospaced fonts.
