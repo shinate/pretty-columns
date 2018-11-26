@@ -1,11 +1,17 @@
-var util = require('util');
-
 function strip(str) {
     return ('' + str).replace(/\x1B\[\d+m/g, '');
 }
 
 function split(source, symbol) {
-    return util.isString(source) ? source.split(symbol) : source;
+    return isString(source) ? source.split(symbol) : source;
+}
+
+function isString(t) {
+    return typeof t === 'string';
+}
+
+function isArray(t) {
+    return Array.isArray(t);
 }
 
 function PC(source, config) {
@@ -73,9 +79,9 @@ tp.fixAlign = function fixAlign() {
     var optAlign = [];
 
     if (this.config.hasOwnProperty('align')) {
-        if (util.isString(this.config.align)) {
+        if (isString(this.config.align)) {
             optAlign = this.config.align.split('');
-        } else if (util.isArray(this.config.align)) {
+        } else if (isArray(this.config.align)) {
             optAlign = this.config.align;
         }
 

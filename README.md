@@ -94,7 +94,7 @@ var INPUT = [
     ]
 ];
 
-output(source_array, {
+output(INPUT, {
     align: 'cr',
     columnSeparation: ' | ',
     rowSeparation: " |\n| ",
