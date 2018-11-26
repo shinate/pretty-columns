@@ -107,3 +107,9 @@ output(source_array, {
 **Print**
 
 ![](https://raw.githubusercontent.com/shinate/pretty-columns/master/thumbnails/description.png)
+
+## *PS
+
+- Best display when using monospaced fonts.
+- Content can only be displayed in a single line.
+- Multi-line display may be possible. (lazy.. stretched)

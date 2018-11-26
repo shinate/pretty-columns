@@ -1,6 +1,6 @@
 {
   "name": "pretty-columns",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Pretty command line columns output",
   "main": "index.js",
   "scripts": {
