@@ -106,4 +106,4 @@ output(source_array, {
 
 **Print**
 
-![]()
+![](https://raw.githubusercontent.com/shinate/pretty-columns/master/thumbnails/description.png)
