@@ -62,3 +62,48 @@ var input = ['A,B','1,2'];
 |rowSeparation|Rows connector|"\n"|
 |rowSplitSymbol|Row split symbol(when string input given)|"\n"(can be regexp)|
 |columnSplitSymbol|Column split symbol(when string input given)|"\t"(can be regexp)|
+
+## Example
+
+```javascript
+
+var output = require('../index').output;
+var colors = require('colors');
+var chalk = require('chalk');
+
+var INPUT = [
+    [
+        chalk.bold.blue("key"),
+        colors.bold.red("value")
+    ],
+    [
+        "domain",
+        "www.google.com"
+    ],
+    [
+        chalk.yellow("path"),
+        "search"
+    ],
+    [
+        "query",
+        "q=" + colors.cyan("npm")
+    ],
+    [
+        "scheme",
+        "https"
+    ]
+];
+
+output(source_array, {
+    align: 'cr',
+    columnSeparation: ' | ',
+    rowSeparation: " |\n| ",
+    prefix: '| ',
+    suffix: ' |',
+    placeholder: '*'
+});
+```
+
+**Print**
+
+![]()

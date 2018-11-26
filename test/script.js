@@ -8,7 +8,7 @@ var source_string = "A\tB is very very very long\tC\tD\n1\t2\t3 is very very ver
 
 var source_array = [
     [
-        "key",
+        chalk.bold.blue("key"),
         colors.bold.red("value")
     ],
     [
@@ -16,12 +16,12 @@ var source_array = [
         "www.google.com"
     ],
     [
-        chalk.blue("path"),
+        chalk.yellow("path"),
         "search"
     ],
     [
         "query",
-        "q=npm"
+        "q=" + colors.cyan("npm")
     ],
     [
         "scheme",
@@ -45,7 +45,7 @@ PC(source_array, {
     rowSeparation: " |\n| ",
     prefix: '| ',
     suffix: ' |',
-    placeholder: '.'
+    placeholder: '*'
 }).output();
 
 console.log("\n# Mixed input and special column symbol".blue.bold);
