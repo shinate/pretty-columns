@@ -14,6 +14,12 @@
 npm install pretty-columns
 ```
 
+## Via [yarn](https://yarnpkg.com/)
+
+```javascript
+yarn add pretty-columns
+```
+
 ## Usage
 
 ### Normally

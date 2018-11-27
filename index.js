@@ -2,33 +2,71 @@
 
 var emojiRegex = require('emoji-regex')();
 
+/**
+ * Strip ansi characters
+ *
+ * @param {string} str
+ * @returns {string}
+ */
 function stripANSI(str) {
-    return str.replace(/\x1B\[\d+m/g, '');
+    return ('' + str).replace(/\x1B\[\d+m/g, '');
 }
 
+/**
+ * Strip wrap characters
+ *
+ * @param {string} str
+ * @returns {string}
+ */
 function stripWRAP(str) {
-    return str.replace(/[\n\r]+/g, ' ');
+    return ('' + str).replace(/[\n\r]+/g, ' ');
 }
 
+/**
+ * Strip emoji characters
+ *
+ * @param {string} str
+ * @returns {string}
+ */
 function stripEmoji(str) {
-    return str.replace(emojiRegex, '');
+    return ('' + str).replace(emojiRegex, '');
 }
 
+/**
+ * Split if string given
+ *
+ * @param {array|string} source
+ * @param {string|regex} symbol
+ * @returns {array}
+ */
 function split(source, symbol) {
-    return isString(source) ? source.split(symbol) : source;
+    return isArray(source) ? source : ('' + source).split(symbol);
 }
 
+/**
+ * Is string
+ *
+ * @param t
+ * @returns {boolean}
+ */
 function isString(t) {
     return typeof t === 'string';
 }
 
+/**
+ * Is Array
+ *
+ * @param t
+ * @returns {boolean}
+ */
 function isArray(t) {
     return Array.isArray(t);
 }
 
 /**
  * String real width
- * @param str
+ *
+ * @param {string} str
  * @returns {number}
  *
  * Emoji: 2
@@ -42,6 +80,13 @@ function realWidth(str) {
     return str.length + (stripEmoji(str).match(/[^\x00-\xff]/g) || []).length;
 }
 
+/**
+ * Main
+ *
+ * @param source
+ * @param config
+ * @constructor
+ */
 function PC(source, config) {
     if (source == null)
         return;
@@ -59,7 +104,7 @@ function PC(source, config) {
     this._STATS = {
         originalSource: source,
         source: null,
-        formated: null,
+        formatted: null,
         rows: 0,
         columns: 0,
         maxWidth: [],
@@ -68,18 +113,26 @@ function PC(source, config) {
     };
 
     this.params(config);
-    this.parse();
-    this.fixAlign();
+    this.parseSource();
+    this.AnalyticAlignment();
     this.format();
 }
 
 var tp = PC.prototype;
 
+/**
+ * Parse configuration
+ *
+ * @param {object} config
+ */
 tp.params = function params(config) {
     Object.assign(this.config, config);
 };
 
-tp.parse = function parse() {
+/**
+ * Parsing the original source and create this._STATS.source
+ */
+tp.parseSource = function parse() {
     this._STATS.source = split(this._STATS.originalSource, this.config.rowSplitSymbol).map(function (row, rowNum) {
         if (this._STATS.columns < row.length)
             this._STATS.columns = row.length;
@@ -94,7 +147,10 @@ tp.parse = function parse() {
     this._STATS.rows = this._STATS.source.length;
 };
 
-tp.fixAlign = function fixAlign() {
+/**
+ * Analytic alignment
+ */
+tp.AnalyticAlignment = function fixAlign() {
     var align = (new Array(this._STATS.columns)).fill(0);
     var optAlign = [];
     if (this.config.hasOwnProperty('align')) {
@@ -124,11 +180,14 @@ tp.fixAlign = function fixAlign() {
     this._STATS.align = align;
 };
 
+/**
+ * Format source and create this._STATS.formatted
+ */
 tp.format = function format() {
     var placeholder = this.config.placeholder;
     var columnSeparation = this.config.columnSeparation;
     var rowSeparation = this.config.rowSeparation;
-    this._STATS.formated = this.config.prefix +
+    this._STATS.formatted = this.config.prefix +
         this._STATS.source.map(function (row, rowNum) {
             return row.map(function (column, columnNum) {
                 var fillZero = this._STATS.maxWidth[columnNum] - this._STATS.width[rowNum][columnNum];
@@ -155,20 +214,42 @@ tp.format = function format() {
         this.config.suffix;
 };
 
+/**
+ * Output
+ */
 tp.output = function output() {
-    console.log(this._STATS.formated);
+    console.log(this._STATS.formatted);
 };
 
+/**
+ * Export wrapper
+ *
+ * @param {string|array} source
+ * @param {object|null} config
+ * @returns {PC}
+ * @constructor
+ */
 function WRAP(source, config) {
     return new PC(source, config || {});
 }
 
+/**
+ * Direct call of output
+ *
+ * @param {string|array} source
+ * @param {object|null} config
+ */
 WRAP.output = function (source, config) {
     (new PC(source, config || {})).output();
 };
 
-WRAP.injectConsole = function () {
-    console.columns = WRAP.output;
+/**
+ * Inject to console with given string
+ *
+ * @param {string} key default: "columns"
+ */
+WRAP.injectConsole = function (key) {
+    console[key || 'columns'] = WRAP.output;
 };
 
 module.exports = WRAP;
